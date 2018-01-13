@@ -4,6 +4,12 @@ from StringIO import StringIO
 from scipy import misc
 import numpy as np
 
+class DummyMsg:
+    def __init__(self):
+        self.topic = None
+        self.message = None
+        self.timestamp = None
+
 KEY_NAME = {
     '/vehicle/steering_report': 'steering',
     '/center_camera/image_color/c': 'image',
@@ -23,7 +29,14 @@ def gen(bag):
     image = {}
     total = bag.get_message_count()
     count = 0
-    for e in bag.read_messages():
+    for e_old in bag.read_messages():
+        if type(e_old) == type(()):
+            e = DummyMsg()
+            e.topic = e_old[0]
+            e.message = e_old[1]
+            e.timestamp = e_old[2]
+        else:
+            e = e_old
         count += 1
         if count % 10000 == 0:
             print count, '/', total
